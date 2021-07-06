@@ -1,7 +1,8 @@
 ## Insert credentials into the two "creds" string fields (AccessKey/SecretKey), replace "BUCKETNAME".
+## Uses a modified 'nimaws' (had deprecated functions), so be sure to use the one in this repo instead of nimble's version.
 ## Compile with 'nim c --opt:speed -d:ssl -d:release --app:console aws.nim'
-## Binary size can be reduced from 573k to 189k with 'strip aws && upx --best --strip-relocs=0 aws'
-import nimaws/s3client, httpclient, os, asyncdispatch, strformat
+## Binary size can be reduced from 566k to 186k with 'strip aws && upx --best --strip-relocs=0 aws'
+import nimaws/s3client, os, asyncdispatch, strformat
 var
   client:S3Client
   creds:(string,string)
@@ -30,7 +31,7 @@ proc up(upload:string): Future[string] {.async.} = ## Replaceall "BUCKETHERE" wi
         var client2 = newS3Client(creds, "us-east-2") ## Hopefully you never hit this, but switch out location here
         sleep(1000)
         try:
-          discard waitFor client.put_object("BUCKETHERE", upload, readFile(upload))
+          discard waitFor client2.put_object("BUCKETHERE", upload, readFile(upload))
         except:
           echo fmt"FAILED TO UPLOAD {name}{ext}! Check network connection & credentials."
           quit()
